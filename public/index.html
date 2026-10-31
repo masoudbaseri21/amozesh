@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>آموزش‌های ماهانه آتش‌نشانی</title>
+<meta name="description" content="آموزش‌های ماهانه آتش‌نشانی با جزوه PDF، عکس و ویدیو.">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#10253b;--red:#c62d1f;--hv:#dfe83b;--steel:#e9edf1;--ink:#1b2430;--mut:#5d6b7a;--line:#cfd6de}
+*{box-sizing:border-box;margin:0}
+body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--steel);color:var(--ink);line-height:1.9}
+a,button{font:inherit}
+header{background:var(--navy);color:#fff}
+.band{height:9px;background:repeating-linear-gradient(-45deg,var(--hv) 0 14px,var(--navy) 14px 22px)}
+.top{max-width:980px;margin:auto;padding:16px;display:flex;align-items:center;gap:12px}
+.top svg{width:34px;height:34px;flex:none}.top b{font-size:1.15rem}
+main{max-width:980px;margin:auto;padding:28px 16px 40px}
+h1{font-size:clamp(1.5rem,4vw,2.2rem);line-height:1.5}
+.lead{color:var(--mut);margin:4px 0 22px;max-width:60ch}
+.months{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-bottom:18px}
+.mc{flex:none;min-width:130px;background:#fff;border:1px solid var(--line);border-top:6px solid var(--line);border-radius:10px;padding:10px 16px;cursor:pointer;text-align:right;color:var(--ink)}
+.mc b{display:block;font-size:1.1rem}.mc span{color:var(--mut);font-size:.85rem}
+.mc.on{background:var(--navy);color:#fff;border-top-color:var(--hv)}.mc.on span{color:#c9d6e3}
+.tp{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:10px}
+.tp.on{border-right:6px solid var(--red)}
+.th{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;width:100%;padding:14px 18px;cursor:pointer;font-family:inherit}
+.th:focus-visible,.mc:focus-visible,.btn:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.th b{font-size:1.05rem}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chips i{font-style:normal;background:var(--steel);border-radius:6px;padding:0 10px;font-size:.8rem;color:var(--mut)}
+.body{padding:0 18px 18px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 14px}
+.btn{display:inline-block;background:var(--navy);color:#fff;border:0;border-radius:8px;padding:6px 16px;cursor:pointer;text-decoration:none;font-weight:600}
+.btn.red{background:var(--red)}.btn.ghost{background:var(--steel);color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.pdfv{width:100%;height:72vh;border:1px solid var(--line);border-radius:8px}
+.gal{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+.gal figure{margin:0;display:flex;flex-direction:column;gap:6px}
+.gal img{width:100%;height:140px;object-fit:cover;border-radius:8px;cursor:zoom-in;background:var(--steel)}
+video{width:100%;max-height:70vh;border-radius:8px;background:#000}
+.mut{color:var(--mut);font-size:.9rem}
+dialog{border:0;border-radius:12px;padding:12px;max-width:min(94vw,1000px)}dialog::backdrop{background:#000b}
+dialog img{max-width:100%;max-height:78vh;display:block;margin:auto}
+footer{text-align:center;color:var(--mut);font-size:.85rem;padding:20px}footer a{color:var(--mut)}
+</style>
+</head>
+<body>
+<header><div class="top">
+ <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#c62d1f"/><path d="M12 4c1 3.5 5.5 5 5.5 10a5.5 5.5 0 01-11 0c0-2.5 1.5-4.2 2.8-5.8.2 1.8 1 2.6 2 2.6C10.7 8 11 6 12 4z" fill="#fff"/></svg>
+ <b id="org">آموزش‌های آتش‌نشانی</b>
+</div><div class="band"></div></header>
+
+<main>
+ <h1>آموزش‌های ماهانه</h1>
+ <p class="lead">ماه را انتخاب کنید، سرفصل را باز کنید و جزوه، عکس و ویدیوی همان آموزش را ببینید یا دانلود کنید.</p>
+ <div class="months" id="months"></div>
+ <div id="list"></div>
+</main>
+
+<footer><span id="org2"></span> · <a href="/admin">ورود مدیر</a></footer>
+
+<dialog id="lb"><img id="lbi" alt=""><div class="row" style="margin:10px 0 0;justify-content:center"><a class="btn red" id="lbd">دانلود عکس</a><button class="btn ghost" id="lbx">بستن</button></div></dialog>
+
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const MN=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const fa=n=>(+n).toLocaleString("fa-IR",{useGrouping:false}),mLabel=m=>MN[+m.slice(5)-1]+" "+fa(m.slice(0,4));
+let items=[],cur=null,open=null,tab="pdf";
+
+async function load(){
+ try{const d=await(await fetch("/api/trainings")).json();items=d.items;$("#org").textContent=$("#org2").textContent=d.org;document.title=d.org+" | آموزش‌های ماهانه"}
+ catch(e){$("#list").innerHTML=`<p class="mut">ارتباط با سرور برقرار نشد. صفحه را دوباره باز کنید.</p>`;return}
+ draw();
+}
+const dl=u=>`<a class="btn red" href="${u}?dl=1">دانلود</a>`;
+function body(t){
+ const T=[["pdf","جزوه PDF",t.pdf?1:0],["img","عکس‌ها",t.images.length],["vid","ویدیوها",t.videos.length]];
+ let b=`<div class="seg">${T.map(x=>`<button class="btn ${tab==x[0]?"":"ghost"}" data-tb="${x[0]}">${x[1]} (${fa(x[2])})</button>`).join("")}</div>`;
+ if(tab=="pdf")b+=t.pdf?`<div class="row">${dl(t.pdf.u)}<a class="btn ghost" target="_blank" rel="noopener" href="${t.pdf.u}">باز کردن در صفحه جدید</a></div><iframe class="pdfv" src="${t.pdf.u}" title="${esc(t.t)}"></iframe><p class="mut" style="margin-top:6px">اگر روی گوشی PDF نمایش داده نشد، «باز کردن در صفحه جدید» را بزنید.</p>`:`<p class="mut">برای این آموزش جزوه‌ای ثبت نشده است.</p>`;
+ if(tab=="img")b+=t.images.length?`<div class="gal">${t.images.map(i=>`<figure><img loading="lazy" src="${i.u}" alt="${esc(i.n)}" data-z="${i.u}">${dl(i.u)}</figure>`).join("")}</div>`:`<p class="mut">عکسی ثبت نشده است.</p>`;
+ if(tab=="vid")b+=t.videos.length?t.videos.map(v=>`<div style="margin-bottom:16px"><video controls playsinline preload="metadata" src="${v.u}"></video><div class="row" style="margin-top:6px"><span class="mut">${esc(v.n)}</span>${dl(v.u)}</div></div>`).join(""):`<p class="mut">ویدیویی ثبت نشده است.</p>`;
+ return `<div class="body">${b}</div>`;
+}
+function draw(){
+ const ms=[...new Set(items.map(t=>t.m))].sort().reverse();
+ if(!ms.length){$("#months").innerHTML="";$("#list").innerHTML=`<p class="mut">هنوز آموزشی منتشر نشده است.</p>`;return}
+ if(!ms.includes(cur))cur=ms[0];
+ $("#months").innerHTML=ms.map(m=>`<button class="mc ${m==cur?"on":""}" data-m="${m}"><b>${mLabel(m)}</b><span>${fa(items.filter(t=>t.m==m).length)} آموزش</span></button>`).join("");
+ $("#list").innerHTML=items.filter(t=>t.m==cur).map(t=>`<div class="tp ${open==t.id?"on":""}"><button class="th" data-o="${t.id}" aria-expanded="${open==t.id}"><b>${esc(t.t)}</b><span class="chips">${t.pdf?"<i>PDF</i>":""}${t.images.length?`<i>${fa(t.images.length)} عکس</i>`:""}${t.videos.length?`<i>${fa(t.videos.length)} ویدیو</i>`:""}</span></button>${open==t.id?body(t):""}</div>`).join("");
+}
+document.addEventListener("click",e=>{
+ const d=e.target.closest("[data-m],[data-o],[data-tb],[data-z]")?.dataset;if(!d)return;
+ if(d.m){cur=d.m;open=null;draw()}
+ else if(d.o){open=open==d.o?null:d.o;tab="pdf";const t=items.find(x=>x.id==open);if(t&&!t.pdf)tab=t.images.length?"img":"vid";draw()}
+ else if(d.tb){tab=d.tb;draw()}
+ else if(d.z){$("#lbi").src=d.z;$("#lbd").href=d.z+"?dl=1";$("#lb").showModal()}
+});
+$("#lbx").onclick=()=>$("#lb").close();
+$("#lb").onclick=e=>{if(e.target.id=="lb")$("#lb").close()};
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>پنل مدیریت آموزش‌ها</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#10253b;--red:#c62d1f;--hv:#dfe83b;--steel:#e9edf1;--ink:#1b2430;--mut:#5d6b7a;--line:#cfd6de}
+*{box-sizing:border-box;margin:0}body{font-family:Vazirmatn,Tahoma,sans-serif;background:var(--steel);color:var(--ink);line-height:1.8}
+header{background:var(--navy);color:#fff;padding:12px 16px;display:flex;gap:14px;align-items:center;border-bottom:8px solid var(--hv)}header a{color:var(--hv)}header b{margin-left:auto}
+main{max-width:900px;margin:auto;padding:20px 14px 50px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+input,select{width:100%;font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:8px;margin:5px 0;background:#fff}
+.btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:6px 16px;font:inherit;font-weight:600;cursor:pointer}
+.btn.del{background:var(--red)}.btn.ghost{background:var(--steel);color:var(--ink)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{width:auto}
+.mh{display:flex;justify-content:space-between;align-items:center;margin:22px 0 8px;gap:10px;flex-wrap:wrap}
+.item{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--steel);flex-wrap:wrap}.item>span{flex:1;min-width:150px}
+.mut{color:var(--mut);font-size:.85rem}.sub{margin:12px 0 2px;font-weight:600}.err{color:var(--red);min-height:1.5em}
+</style>
+</head>
+<body>
+<header><b>پنل مدیریت آموزش‌ها</b><a href="/">مشاهده سایت</a><button class="btn ghost" id="out" hidden>خروج</button></header>
+<main id="m"></main>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const api=async(u,o={})=>{const r=await fetch(u,{credentials:"same-origin",...o,headers:o.body&&!(o.body instanceof FormData)?{"Content-Type":"application/json"}:{}});const j=await r.json().catch(()=>({}));if(!r.ok)throw j;return j};
+const J=JSON.stringify,mb=n=>(n/1e6).toFixed(1)+" مگابایت";
+const MN=["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const fa=n=>(+n).toLocaleString("fa-IR",{useGrouping:false}),mLabel=m=>MN[+m.slice(5)-1]+" "+fa(m.slice(0,4));
+let items=[];
+const run=async f=>{try{await f();await load()}catch(e){alert(e.err||"خطا در ارتباط با سرور")}};
+
+async function load(){
+ const me=await api("/api/me").catch(()=>({}));
+ if(!me.admin){$("#out").hidden=true;return loginView()}
+ $("#out").hidden=false;items=(await api("/api/trainings")).items;view();
+}
+function loginView(){
+ $("#m").innerHTML=`<div class="card" style="max-width:380px;margin:40px auto"><h3>ورود مدیر</h3><input id="u" placeholder="نام کاربری" autocomplete="username"><input id="p" type="password" placeholder="رمز عبور" autocomplete="current-password"><p class="err" id="e"></p><button class="btn" id="go">ورود</button></div>`;
+ const go=async()=>{try{await api("/api/login",{method:"POST",body:J({u:$("#u").value.trim(),p:$("#p").value})});load()}catch(x){$("#e").textContent=x.err||"خطا"}};
+ $("#go").onclick=go;$("#p").onkeydown=e=>e.key=="Enter"&&go();
+}
+const fl=(t,L)=>L.map(x=>`<div class="item"><span>${esc(x.n)} <span class="mut">${mb(x.size)}</span></span><button class="btn del" data-a="delF" data-id="${t.id}" data-f="${x.id}">حذف</button></div>`).join("")||`<p class="mut">ندارد</p>`;
+function view(){
+ const ms=[...new Set(items.map(t=>t.m))].sort().reverse();
+ $("#m").innerHTML=`<div class="card"><h3>افزودن آموزش جدید</h3><div class="row"><input id="ty" type="number" value="1405" style="width:110px"><select id="tm" style="width:150px">${MN.map((n,i)=>`<option value="${String(i+1).padStart(2,"0")}" ${i==7?"selected":""}>${n}</option>`).join("")}</select></div><input id="tt" placeholder="سرفصل (مثلاً: کار با ست لوکاس)"><button class="btn" data-a="add">ایجاد آموزش</button><p class="mut" style="margin-top:6px">هر ماه حداکثر ۷ آموزش. بعد از ساخت، فایل‌ها را داخل همان کارت آپلود کنید.</p></div>`
+ +(ms.map(m=>`<div class="mh"><h3>${mLabel(m)} — ${fa(items.filter(t=>t.m==m).length)} از ۷</h3><button class="btn del" data-a="delM" data-m="${m}">حذف کل این ماه</button></div>`+items.filter(t=>t.m==m).map(t=>`<div class="card"><div class="item"><span><b>${esc(t.t)}</b></span><button class="btn ghost" data-a="ren" data-id="${t.id}" data-t="${esc(t.t)}">تغییر نام</button><button class="btn del" data-a="delT" data-id="${t.id}">حذف آموزش</button></div>
+  <p class="sub">PDF</p>${fl(t,t.pdf?[t.pdf]:[])}<p class="sub">عکس‌ها</p>${fl(t,t.images)}<p class="sub">ویدیوها</p>${fl(t,t.videos)}
+  <p class="sub">آپلود فایل جدید</p><label class="mut">PDF (جایگزین قبلی می‌شود)</label><input type="file" id="p_${t.id}" accept=".pdf"><label class="mut">عکس‌ها (چندتایی)</label><input type="file" id="i_${t.id}" accept="image/*" multiple><label class="mut">ویدیوها (mp4 یا webm)</label><input type="file" id="v_${t.id}" accept=".mp4,.webm" multiple>
+  <button class="btn" data-a="up" data-id="${t.id}" style="margin-top:8px">آپلود</button> <span class="mut" id="st_${t.id}"></span></div>`).join("")).join("")||`<p class="mut">هنوز آموزشی ساخته نشده.</p>`);
+}
+const act={
+ add(){run(()=>api("/api/admin/trainings",{method:"POST",body:J({m:$("#ty").value+"-"+$("#tm").value,t:$("#tt").value})}))},
+ ren(d){const n=prompt("سرفصل جدید:",d.t);if(n)run(()=>api("/api/admin/trainings/"+d.id,{method:"PUT",body:J({t:n})}))},
+ delT:d=>confirm("این آموزش با تمام فایل‌هایش حذف شود؟")&&run(()=>api("/api/admin/trainings/"+d.id,{method:"DELETE"})),
+ delM:d=>confirm("تمام آموزش‌ها و فایل‌های این ماه حذف شود؟ این کار قابل برگشت نیست.")&&run(()=>api("/api/admin/month/"+d.m,{method:"DELETE"})),
+ delF:d=>confirm("حذف شود؟")&&run(()=>api(`/api/admin/trainings/${d.id}/file/${d.f}`,{method:"DELETE"})),
+ up(d){const fd=new FormData(),p=$("#p_"+d.id).files[0];if(p)fd.append("pdf",p);[...$("#i_"+d.id).files].forEach(f=>fd.append("img",f));[...$("#v_"+d.id).files].forEach(f=>fd.append("vid",f));if(![...fd.keys()].length)return alert("فایلی انتخاب نشده است.");$("#st_"+d.id).textContent="در حال آپلود… (ویدیو ممکن است چند دقیقه طول بکشد)";run(()=>api("/api/admin/trainings/"+d.id+"/files",{method:"POST",body:fd}))}
+};
+$("#m").onclick=e=>{const d=e.target.dataset;if(d.a&&act[d.a])act[d.a](d)};
+$("#out").onclick=()=>api("/api/logout",{method:"POST"}).then(load);
+load();
+</script>
+</body>
+</html>
